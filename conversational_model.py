@@ -8,10 +8,9 @@ DEVICE = config_util.GetModelConfig("Device")
 
 class StoppingCriteriaSub(StoppingCriteria):
 
-    def __init__(self, stop_token_id, tokenizer):
+    def __init__(self, stop_token_id):
       super().__init__()
       self.stop_token_id = stop_token_id.to(DEVICE)
-      self.tokenizer = tokenizer
 
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor):
         if (len(input_ids[0]) > len(self.stop_token_id)):
@@ -29,7 +28,7 @@ class ConversationalModel:
         model_name = ConversationalModel.model_type_to_name["Pygmalion"]
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         stop_token_id = tokenizer("END_OF_DIALOG", return_tensors='pt', add_special_tokens=False)['input_ids'].squeeze()
-        stopping_criteria = StoppingCriteriaList([StoppingCriteriaSub(stop_token_id=stop_token_id, tokenizer=tokenizer)])
+        stopping_criteria = StoppingCriteriaList([StoppingCriteriaSub(stop_token_id=stop_token_id)])
         model = GPTJForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16).to(DEVICE)
 
         context = (
