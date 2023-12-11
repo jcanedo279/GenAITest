@@ -38,14 +38,13 @@ class ConversationalModel:
             "[DIALOGUE HISTORY]"
             "You: What profound lesson or insight do you believe transcends time and holds eternal significance for humanity?"
             "[CHARACTER]:")
-        context_length = len(context.split(" "))
         context_ids = tokenizer(context, return_tensors="pt").input_ids.to(DEVICE)
         
         gen_tokens = model.generate(
             context_ids,
             do_sample=True,
             temperature=0.9,
-            max_length=context_length+200,
+            max_length=2048,
             stopping_criteria=stopping_criteria
         )
         gen_text = tokenizer.batch_decode(gen_tokens)
