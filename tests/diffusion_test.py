@@ -7,18 +7,27 @@ from flax.jax_utils import replicate
 from flax.training.common_utils import shard
 from diffusers import StableDiffusionPipeline
 from diffusers import FlaxStableDiffusionImg2ImgPipeline
+from pathlib import Path
+import sys
+
+# Pop up a dir.
+sys.path.append(str(Path(__file__).absolute().parent.parent))
+# Import from parent directory.
+from config_util import GetModelConfig
+# Go back to file path.
+sys.path.pop()
 
 
-device = "mps" # This is for a macbook pro GPU.
+DEVICE = GetModelConfig("Device")
 def StableDiffusionV1_5():
-    pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16).to(device)
+    pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16).to(DEVICE)
 
     prompt = "Merlin, the legendary wizard of Arthurian lore, is an enigmatic and wise figure whose long, flowing beard and robes exude an aura of ancient mysticism. With eyes that gleam with arcane knowledge, he wields a magical staff, channeling the forces of nature and the cosmos to shape destiny itself, embodying the timeless archetype of the sagacious and powerful sorcerer."
     image = pipe(prompt).images[0]
     SaveImage(image, "StableDiffusionV1_5")
 
 def RealisticVisionV6B1():
-    pipe = StableDiffusionPipeline.from_pretrained("SG161222/Realistic_Vision_V6.0_B1_noVAE", torch_dtype=torch.float16).to(device)
+    pipe = StableDiffusionPipeline.from_pretrained("SG161222/Realistic_Vision_V6.0_B1_noVAE", torch_dtype=torch.float16).to(DEVICE)
 
     prompt = "Merlin, the legendary wizard of Arthurian lore, is an enigmatic and wise figure whose long, flowing beard and robes exude an aura of ancient mysticism. With eyes that gleam with arcane knowledge, he wields a magical staff, channeling the forces of nature and the cosmos to shape destiny itself, embodying the timeless archetype of the sagacious and powerful sorcerer."
     image = pipe(prompt).images[0]
@@ -54,8 +63,8 @@ def FlaxStableDiffusionV1_4Im2Im():
         image=processed_image,
         params=p_params,
         prng_seed=rng,
-        strength=0.65,
-        num_inference_steps=10,
+        strength=0.75,
+        num_inference_steps=20,
         jit=True,
         height=512,
         width=768,
